@@ -1,0 +1,196 @@
+import React, { useState, useRef } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, Image, Animated, Easing } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+
+const Altbar = () => {
+  const navigation = useNavigation();
+  const [menuOpen, setMenuOpen] = useState(false); // Menü açık mı kapalı mı kontrolü
+  const rotation = useRef(new Animated.Value(0)).current; // Animasyon için rotation değeri
+  const menuOpacity = useRef(new Animated.Value(0)).current; // Menü görünürlüğü için animasyon
+
+  // Animasyonu başlatan fonksiyon
+  const toggleMenu = () => {
+    if (!menuOpen) {
+      // Açılma animasyonu
+      Animated.parallel([
+        Animated.timing(rotation, {
+          toValue: 1, // 180 derece döndür
+          duration: 300,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(menuOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Kapanma animasyonu
+      Animated.parallel([
+        Animated.timing(rotation, {
+          toValue: 0, // 0 dereceye geri döndür
+          duration: 300,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(menuOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+    setMenuOpen(!menuOpen);
+  };
+
+  // Rotation değeri interpolasyonu
+  const rotateInterpolate = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  return (
+    <View style={styles.container}>
+      {/* Ana Sayfa Butonu */}
+      <TouchableOpacity style={[styles.tab, styles.leftTab]} onPress={() => navigation.navigate('HomePage')}>
+        <FontAwesome name="home" size={24} color="#002D72" />
+        <Text style={styles.label}>Ana Sayfa</Text>
+      </TouchableOpacity>
+
+      {/* Hızlı İşlemler Butonu */}
+      <View style={styles.fastActionWrapper}>
+        {/* Açılan Menü */}
+        <Animated.View style={[styles.menuContainer, { opacity: menuOpacity }]}>
+          <TouchableOpacity style={styles.menuItem}>
+            <Image source={require('../../Assets/name.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>Destek</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Image source={require('../../Assets/ayarlar.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>Ayarlar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Image source={require('../../Assets/hekimler.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>Hekimler</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Image source={require('../../Assets/hakkımızda.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>Hakkımızda</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Orta Buton */}
+        <TouchableOpacity style={styles.fastAction} onPress={toggleMenu}>
+          <Animated.View style={[styles.fastActionCircle, { transform: [{ rotate: rotateInterpolate }] }]}>
+            <FontAwesome name="chevron-up" size={40} color="white" style={styles.baner} />
+            <FontAwesome name="chevron-up" size={40} color="#00C8E0" style={styles.innerIcon} />
+          </Animated.View>
+        </TouchableOpacity>
+        <Text style={styles.fastActionLabel}>Hızlı İşlemler</Text>
+      </View>
+
+      {/* Randevu Al Butonu */}
+      <TouchableOpacity style={[styles.tab, styles.rightTab]}>
+        <FontAwesome name="calendar" size={24} color="#002D72" />
+        <Text style={styles.label}>Randevu Al</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderColor: '#E0E0E0',
+    position: 'relative',
+  },
+  tab: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  leftTab: {
+    marginLeft: -60,
+  },
+  rightTab: {
+    marginRight: -60,
+  },
+  label: {
+    fontSize: 14,
+    color: '#002D72',
+    marginTop: 6,
+  },
+  fastActionWrapper: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -35 }],
+    alignItems: 'center',
+  },
+  fastAction: {
+    alignItems: 'center',
+  },
+  fastActionCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#002D72',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 5,
+    borderColor: '#DAE2EE',
+    position: 'absolute',
+    top: -55,
+    right: -55,
+  },
+  innerIcon: {
+    position: 'absolute',
+    bottom: 5,
+  },
+  baner: {
+    position: 'absolute',
+    bottom: 20,
+  },
+  fastActionLabel: {
+    fontSize: 14,
+    color: '#002D72',
+    marginTop: 30,
+    right: -15,
+  },
+  menuContainer: {
+    position: 'absolute',
+    bottom: 80,
+    flexDirection: 'row',
+    backgroundColor: '#DFE8F1',
+    padding: 15,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  menuItem: {
+    alignItems: 'center',
+    marginHorizontal: 20,
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    
+  },
+  menuText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#002D72',
+    fontWeight: 'bold',
+  },
+});
+
+export default Altbar;

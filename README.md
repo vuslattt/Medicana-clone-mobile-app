@@ -1,1 +1,0 @@
-# Medicana-clone-mobile-app
